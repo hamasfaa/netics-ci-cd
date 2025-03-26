@@ -36,8 +36,11 @@ jobs:
 
       - name: Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} \
-          "docker pull hamasfa/health:latest && \
-           docker stop health || true && \
-           docker rm health || true && \
-           docker run -d --name health -p 80:8080 hamasfa/health:latest"
+          ssh -i "C:/Users/hamas/File Hamas/NETICS/vps-local/.vagrant/machines/default/virtualbox/private_key" \
+              -p 2222 \
+              -o StrictHostKeyChecking=no \
+              vagrant@127.0.0.1 \
+              "docker pull your-dockerhub-username/your-app:latest && \
+               docker stop your-app || true && \
+               docker rm your-app || true && \
+               docker run -d --name your-app -p 80:8080 your-dockerhub-username/your-app:latest"
