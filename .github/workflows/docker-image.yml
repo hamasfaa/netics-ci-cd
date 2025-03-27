@@ -35,9 +35,13 @@ jobs:
         run: docker push hamasfa/health:latest
 
       - name: Deploy
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} \
-          "docker pull hamasfa/health:latest && \
-           docker stop health || true && \
-           docker rm health || true && \
-           docker run -d --name health -p 80:8080 hamasfa/health:latest"
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker pull hamasfa/health:latest
+            docker stop health || true
+            docker rm health || true
+            docker run -d --name health -p 80:8080 hamasfa/health:latest"
