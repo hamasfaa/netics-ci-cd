@@ -42,6 +42,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker pull hamasfa/health:latest
-            docker stop health || true
-            docker rm health || true
+            docker stop health || echo "Gak ada yang bisa distop"
+            docker rm health || echo "Gak ada yang bisa dihapus"
             docker run -d --name health -p 80:8080 hamasfa/health:latest
