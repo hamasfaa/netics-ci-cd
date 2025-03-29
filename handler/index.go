@@ -1,6 +1,8 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func IndexHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -9,6 +11,8 @@ func IndexHandler() http.HandlerFunc {
 			w.Write([]byte("Method not allowed"))
 			return
 		}
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Hello, Docker! <3"))
 	}
 }
