@@ -8,10 +8,7 @@ import (
 )
 
 func main() {
-	timeZone, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Fatal(err)
-	}
+	timeZone := time.FixedZone("UTC+7", 8*60*60)
 	timeUp := time.Now().In(timeZone).Format("2006-01-02 15:04:05")
 
 	http.HandleFunc("/", handler.IndexHandler())
