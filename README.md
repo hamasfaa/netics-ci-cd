@@ -137,13 +137,13 @@ Pada workflow ini terbagi menjadi 3 job, yaitu :
    Job ini melakukan tugas sebagai berikut :
    - Menyiapkan Qemu dan Docker Buildx untuk build multi-arsitektur
    - Melakukan login ke docker hub
-   - Melakukan build dan push ke docker hub
-   - Menggunakan caching dari GitHub Actions untuk mempercepat build
+   - Melakukan build dan push image terbaru ke docker hub
+   - Menggunakan cache dari GitHub Actions untuk mempercepat build
 3. deploy <br/>
    Job ini melakukan tugas sebagai berikut :
-   - Melakukkan ssh ke vps
+   - Melakukkan SSH ke VPS
    - Menjalankan script dengan tujuan :
-     1. Mengambil docker images health terbaru dari sumber yang telah diatur
+     1. Menarik (pull) docker images health terbaru dari sumber yang telah diatur
      2. Memberhentikan container lama health, jika ada
      3. Menghapus container lama health, jika ada
      4. Menjalankan container baru dengan port 80:8080
@@ -194,7 +194,7 @@ type HealthResponse struct {
 }
 ```
 
-Kode di atas adalah sebuah struktur data yang nantinya akan dikirim sebagai respons JSON.
+Kode di atas adalah sebuah struktur data yang nantinya akan dijadikan format respons dalam bentuk JSON.
 
 - handler/index.go
 
@@ -219,7 +219,7 @@ func IndexHandler() http.HandlerFunc {
 }
 ```
 
-Kode di atas adalah handler untuk endpoint `/` yang hanya menerima metode GET requests. Ketika mendapat request yang valid maka akan mengembalikan respons `Hello, Docker Tes! <3`
+Kode di atas adalah handler untuk endpoint “/” yang hanya menerima request dengan metode GET. Apabila request tersebut valid, maka akan membalas dengan respons bertuliskan "Hello, Docker Tes! <3".
 
 - handler/health.go
 
@@ -258,4 +258,4 @@ func HealthHandler(timeUp string, timeZone *time.Location) http.HandlerFunc {
 }
 ```
 
-Kode di atas adalah handler untuk endpoint `/health` yang hanya menerima metode GET requests. Ketika mendapat request yang valid maka akan mengembalikan respons yang diambil dari `response/health_response.go`
+Kode di atas adalah handler untuk endpoint “/health” yang hanya menerima request dengan metode GET. Apabila request tersebut valid, maka akan membalas dengan respons JSON yang yang diambil dari struct HealthResponse yang berisi informasi, seperti nama, NRP, status, timestamp, dan uptime.
