@@ -13,6 +13,6 @@ func IndexHandler() http.HandlerFunc {
 		}
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello, Docker Tes! <3"))
+		w.Write([]byte("Hello, Docker Tes! VERSI v1.0.0<3"))
 	}
 }
