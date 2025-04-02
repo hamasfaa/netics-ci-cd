@@ -48,6 +48,8 @@ name: Docker Image CI
 on:
   push:
     branches: ["main"]
+    tags:
+      - "v*.*.*"
   pull_request:
     branches: ["main"]
 
@@ -85,7 +87,23 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     needs: build-and-test
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/health
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -102,7 +120,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -138,6 +157,7 @@ Pada workflow ini terbagi menjadi 3 job, yaitu :
    - Menyiapkan Qemu dan Docker Buildx untuk build multi-arsitektur
    - Melakukan login ke docker hub
    - Melakukan build dan push image terbaru ke docker hub
+   - Membuat tag versi berdasarkan Git tags
    - Menggunakan cache dari GitHub Actions untuk mempercepat build
 3. deploy <br/>
    Job ini melakukan tugas sebagai berikut :
