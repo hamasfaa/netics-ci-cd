@@ -87,11 +87,12 @@ jobs:
       - name: Version
         id: version
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+          if [[ github.ref == 'refs/heads/main' ]]; then
+            VERSION=latest
+            echo "VERSION=latest" >> $GITHUB_OUTPUT
+          else
             VERSION=${GITHUB_REF#refs/tags/v}
             echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          else
-            echo "VERSION=latest" >> $GITHUB_OUTPUT
           fi
 
       - name: Deploy
