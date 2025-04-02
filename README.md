@@ -125,10 +125,26 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Cleanup unused Docker resources
+        run: docker system prune -af
+
   deploy:
     runs-on: ubuntu-latest
     needs: docker
     steps:
+      - name: Version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            VERSION=latest
+            echo "VERSION=latest" >> $GITHUB_OUTPUT
+            echo "VERSION-latest"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "VERSION=$VERSION"
+          fi
+
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
@@ -136,38 +152,46 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:${{ steps.version.outputs.VERSION }}
             docker stop health || echo "Gak ada yang bisa distop"
             docker rm health || echo "Gak ada yang bisa dihapus"
-            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
+            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:${{ steps.version.outputs.VERSION }}
             docker image prune -f
 ```
 
 Pada workflow ini terbagi menjadi 3 job, yaitu :
 
-1. build-and-test <br/>
+1. **build-and-test** <br/>
    Job ini melakukan tugas sebagai berikut :
-   - Melakukan checkout untuk mengambil kode dari repositori
-   - Menyimpan module-module yang digunakan untuk mempercepat build selanjutnya
-   - Menyiapkan env Go dengan versi 1.23.2
-   - Mendownload modules yang dibutuhkan
-   - Melakukan compile dan melakukan testing
-2. docker <br/>
+
+   - Melakukan checkout untuk mengambil kode dari repositori.
+   - Menyimpan module-module yang digunakan untuk mempercepat build selanjutnya.
+   - Menyiapkan environment Go dengan versi 1.23.2.
+   - Mendownload modules yang dibutuhkan.
+   - Melakukan compile dan testing.
+
+2. **docker** <br/>
    Job ini melakukan tugas sebagai berikut :
-   - Menyiapkan Qemu dan Docker Buildx untuk build multi-arsitektur
-   - Melakukan login ke docker hub
-   - Melakukan build dan push image terbaru ke docker hub
-   - Membuat tag versi berdasarkan Git tags
-   - Menggunakan cache dari GitHub Actions untuk mempercepat build
-3. deploy <br/>
+
+   - Memastikan keberadaan Dockerfile untuk menghindari error saat build.
+   - Menyiapkan QEMU dan Docker Buildx untuk build multi-arsitektur.
+   - Melakukan login ke Docker Hub.
+   - Melakukan build dan push image terbaru ke Docker Hub.
+   - Membuat tag versi berdasarkan Git tags.
+   - Menggunakan cache dari GitHub Actions untuk mempercepat build.
+   - Membersihkan resource Docker yang tidak digunakan untuk menghemat penyimpanan.
+
+3. **deploy** <br/>
    Job ini melakukan tugas sebagai berikut :
-   - Melakukkan SSH ke VPS
-   - Menjalankan script dengan tujuan :
-     1. Menarik (pull) docker images health terbaru dari sumber yang telah diatur
-     2. Memberhentikan container lama health, jika ada
-     3. Menghapus container lama health, jika ada
-     4. Menjalankan container baru dengan port 80:8080
-     5. Menghapus image lama yang tidak terpakai untuk menghemat penyimpanan
+
+   - Mengambil versi yang dibutuhkan sesuai kondisi
+   - Melakukan SSH ke VPS.
+   - Menjalankan script dengan tujuan:
+     1. Menarik (pull) Docker image `health` terbaru dari sumber yang telah diatur.
+     2. Memberhentikan container lama `health`, jika ada.
+     3. Menghapus container lama `health`, jika ada.
+     4. Menjalankan container baru dengan port `80:8080`.
+     5. Menghapus image lama yang tidak terpakai untuk menghemat penyimpanan.
 
 - Dockerfile
 
