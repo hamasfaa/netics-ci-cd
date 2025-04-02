@@ -57,10 +57,7 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/health
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=ref,event=branch
-            type=sha,format=short
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -104,8 +101,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:${{ steps.version.outputs.VERSION }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
             docker stop health || echo "Gak ada yang bisa distop"
             docker rm health || echo "Gak ada yang bisa dihapus"
-            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:${{ steps.version.outputs.VERSION }}
+            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
             docker image prune -f
