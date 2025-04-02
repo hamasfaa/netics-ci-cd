@@ -84,6 +84,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker
     steps:
+      - name: Version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=latest" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
@@ -91,8 +101,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:{{ steps.version.outputs.VERSION }}
             docker stop health || echo "Gak ada yang bisa distop"
             docker rm health || echo "Gak ada yang bisa dihapus"
-            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:latest
+            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:{{ steps.version.outputs.VERSION }}
             docker image prune -f
