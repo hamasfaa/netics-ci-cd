@@ -101,8 +101,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:{{ steps.version.outputs.VERSION }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health:${{ steps.version.outputs.VERSION }}
             docker stop health || echo "Gak ada yang bisa distop"
             docker rm health || echo "Gak ada yang bisa dihapus"
-            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:{{ steps.version.outputs.VERSION }}
+            docker run -d --name health -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/health:${{ steps.version.outputs.VERSION }}
             docker image prune -f
