@@ -179,7 +179,6 @@ Pada workflow ini terbagi menjadi 3 job, yaitu :
    - Melakukan build dan push image terbaru ke Docker Hub.
    - Membuat tag versi berdasarkan Git tags.
    - Menggunakan cache dari GitHub Actions untuk mempercepat build.
-   - Membersihkan resource Docker yang tidak digunakan untuk menghemat penyimpanan.
 
 3. **deploy** <br/>
    Job ini melakukan tugas sebagai berikut :
