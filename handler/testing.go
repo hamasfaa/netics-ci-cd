@@ -13,6 +13,6 @@ func TestingHandler() http.HandlerFunc {
 		}
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello, Docker Tes! Testing Review ke-2 <3"))
+		w.Write([]byte("Hello, Docker Tes! Testing Review ke-3 berhasil?? <3"))
 	}
 }
