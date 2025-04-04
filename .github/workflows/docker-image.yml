@@ -55,7 +55,7 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/health
           tags: |
             type=semver,pattern={{version}}
-            type=raw,value=latest,enable=${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -85,7 +85,7 @@ jobs:
       - name: Version
         id: version
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             VERSION=latest
             echo "VERSION=latest" >> $GITHUB_OUTPUT
             echo "VERSION-latest"
