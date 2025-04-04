@@ -51,8 +51,6 @@ on:
     branches: ["main"]
     tags:
       - "v*.*.*"
-  pull_request:
-    branches: ["main"]
 
 jobs:
   build-and-test:
