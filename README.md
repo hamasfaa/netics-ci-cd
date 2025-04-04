@@ -29,6 +29,7 @@ Membuat sebuah API publik dengan endpoint `/health` dengan menerapkan konsep CI/
 ├───.github
 │   └───workflows
 │           docker-image.yml
+|           code-review.yml
 │
 ├───handler
 │       health.go
@@ -102,7 +103,7 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/health
           tags: |
             type=semver,pattern={{version}}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -125,9 +126,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Cleanup unused Docker resources
-        run: docker system prune -af
-
   deploy:
     runs-on: ubuntu-latest
     needs: docker
@@ -135,7 +133,7 @@ jobs:
       - name: Version
         id: version
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
             VERSION=latest
             echo "VERSION=latest" >> $GITHUB_OUTPUT
             echo "VERSION-latest"
@@ -191,6 +189,33 @@ Pada workflow ini terbagi menjadi 3 job, yaitu :
      3. Menghapus container lama `health`, jika ada.
      4. Menjalankan container baru dengan port `80:8080`.
      5. Menghapus image lama yang tidak terpakai untuk menghemat penyimpanan.
+
+- code-review.yml
+
+```
+name: Code Review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Code Review
+        uses: anc95/ChatGPT-CodeReview@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MODEL: gpt-4o-mini
+```
+
+Pada workflow ini, code-review.yml menjalankan proses peninjauan kode secara otomatis menggunakan anc95/ChatGPT-CodeReview dengan model gpt-4o-mini untuk mempermudah proses review.
 
 - Dockerfile
 
