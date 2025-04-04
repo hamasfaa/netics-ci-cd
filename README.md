@@ -327,3 +327,11 @@ func HealthHandler(timeUp string, timeZone *time.Location) http.HandlerFunc {
 ```
 
 Kode di atas adalah handler untuk endpoint “/health” yang hanya menerima request dengan metode GET. Apabila request tersebut valid, maka akan membalas dengan respons JSON yang yang diambil dari struct HealthResponse yang berisi informasi, seperti nama, NRP, status, timestamp, dan uptime.
+
+## Lampiran
+
+- Main Task
+  ![Main Task](assets/task.png)
+
+- Code Review
+  ![Code Review](assets/code-review.png)
