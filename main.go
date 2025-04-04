@@ -19,6 +19,7 @@ func main() {
 	// http.HandleFunc("/health", handler.HealthHandler(timeUp, timeZone))
 
 	route.HandleFunc("/", handler.IndexHandler())
+	route.HandleFunc("/testing", handler.TestingHandler())
 	route.HandleFunc("/health", handler.HealthHandler(timeUp, timeZone))
 
 	log.Println("Starting server on port 8080...")
