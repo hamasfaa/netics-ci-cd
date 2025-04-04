@@ -87,7 +87,7 @@ jobs:
       - name: Version
         id: version
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
             VERSION=latest
             echo "VERSION=latest" >> $GITHUB_OUTPUT
             echo "VERSION-latest"
